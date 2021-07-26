@@ -1,15 +1,14 @@
-lazy val commonSettings: Seq[Setting[_]] = Seq(
-  name := "server-desktop",
-  version := "2.0.1-SNAPSHOT",
+ThisBuild / scalaVersion := "2.13.6"
+ThisBuild / name := (server / name).value
 
-  scalaVersion := "2.13.5",
+lazy val commonSettings: Seq[Setting[_]] = Seq(
+  version := {
+    val Tag = "refs/tags/(.*)".r
+    sys.env.get("CI_VERSION").collect { case Tag(tag) => tag }
+      .getOrElse("0.0.1-SNAPSHOT")
+  },
 
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
-
-  version := {
-    val tagPrefix = "refs/tags/"
-    sys.env.get("CI_VERSION").filter(_.startsWith(tagPrefix)).map(_.drop(tagPrefix.length)).getOrElse(version.value)
-  }
 )
 
 lazy val root = project.in(file("."))
@@ -19,32 +18,51 @@ lazy val root = project.in(file("."))
   )
   .aggregate(server)
 
-lazy val frontend = project
-  .enablePlugins(ScalaJSWebjarPlugin)
+lazy val common = crossProject(JVMPlatform, JSPlatform)
+  .crossType(CrossType.Pure)
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-core" % "2.6.0",
-      "io.monix" %%% "monix" % "3.3.0",
+      "org.typelevel" %%% "cats-core" % "2.6.1",
+      "io.monix" %%% "monix" % "3.4.0",
+      "io.circe" %%% "circe-core" % "0.14.1",
+      "io.circe" %%% "circe-generic" % "0.14.1",
+      "io.circe" %%% "circe-parser" % "0.14.1",
+    )
+  )
+
+lazy val commonJvm = common.jvm
+lazy val commonJs = common.js
+
+lazy val frontend = project
+  .enablePlugins(ScalaJSWebjarPlugin)
+  .dependsOn(commonJs)
+  .settings(commonSettings)
+  .settings(
+    libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "1.1.0",
+      "com.github.japgolly.scalajs-react" %%% "core" % "1.7.7"
     ),
 
-    scalaJSLinkerConfig := scalaJSLinkerConfig.value.withESFeatures(_.withUseECMAScript2015(false)),
+    scalaJSLinkerConfig ~= {
+      _.withModuleKind(ModuleKind.ESModule)
+    },
     scalaJSUseMainModuleInitializer := true,
   )
 
 lazy val server = project
   .enablePlugins(BuildInfoPlugin)
-  .dependsOn(frontend.webjar)
+  .dependsOn(commonJvm, frontend.webjar)
   .settings(commonSettings)
   .settings(
+    name := "server-desktop",
+
     libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % "1.2.3",
-      "io.monix" %% "monix" % "3.3.0",
-      "org.http4s" %% "http4s-blaze-server" % "0.21.22",
-      "org.http4s" %% "http4s-circe" % "0.21.22",
-      "org.http4s" %% "http4s-dsl" % "0.21.22",
-      "org.http4s" %% "http4s-scalatags" % "0.21.22",
+      "ch.qos.logback" % "logback-classic" % "1.2.5",
+      "org.http4s" %% "http4s-blaze-server" % "0.22.0",
+      "org.http4s" %% "http4s-circe" % "0.22.0",
+      "org.http4s" %% "http4s-dsl" % "0.22.0",
+      "org.http4s" %% "http4s-scalatags" % "0.22.0",
     ),
 
     buildInfoKeys := Seq(
