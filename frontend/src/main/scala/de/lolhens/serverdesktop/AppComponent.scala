@@ -2,7 +2,7 @@ package de.lolhens.serverdesktop
 
 import japgolly.scalajs.react.vdom.VdomElement
 import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.{BackendScope, ScalaComponent}
+import japgolly.scalajs.react.{BackendScope, Callback, ScalaComponent}
 
 object AppComponent {
   case class Props(app: App)
@@ -12,6 +12,11 @@ object AppComponent {
       val props = $.props.runNow()
       <.div(
         ^.cls := "card",
+        ^.cursor := "pointer",
+        ^.boxShadow := "2px 2px 8px rgb(0, 0, 0, 20%)",
+        ^.onClick --> Callback {
+          println(s"Click on ${props.app}")
+        },
         <.div(
           ^.cls := "card-body",
           <.h5(^.cls := "card-title", props.app.title),
