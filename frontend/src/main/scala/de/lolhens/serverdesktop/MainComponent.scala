@@ -4,23 +4,33 @@ import japgolly.scalajs.react.vdom.VdomElement
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.{BackendScope, Callback, ReactEventFromInput, ScalaComponent}
 
+import scala.util.{Failure, Success}
+
 object MainComponent {
   case class Props()
 
-  case class State(filter: String)
+  case class State(
+                    apps: Seq[App],
+                    filter: String
+                  )
 
   object State {
-    val empty: State = State("")
+    val empty: State = State(Seq.empty, "")
   }
 
   private val itemsPerRow = 4
-  private val apps: Seq[App] = (0 until 20).map { i =>
-    App(id = i.toString, title = s"My App $i")
-  }
 
   class Backend($: BackendScope[Props, State]) {
+    Backend.apps().completeWith {
+      case Success(apps) => $.modState(_.copy(apps = apps))
+      case Failure(exception) =>
+        exception.printStackTrace()
+        throw exception
+    }.runNow()
+
     def render: VdomElement = {
       val state = $.state.runNow()
+
       <.div(
         ^.cls := "container my-4 d-flex flex-column",
         <.h1(
@@ -52,9 +62,9 @@ object MainComponent {
         <.div(
           ^.id := "apps",
           ^.cls := "flex-fill d-flex flex-row flex-wrap",
-          apps.filter(_.title.toLowerCase.contains(state.filter.toLowerCase)).map { app =>
+          state.apps.filter(_.title.toLowerCase.contains(state.filter.toLowerCase)).map { app =>
             <.div(
-              ^.key := app.id,
+              ^.key := app.id.string,
               ^.cls := "p-2",
               ^.width := s"${100 / itemsPerRow}%",
               AppComponent.Component(AppComponent.Props(app))

@@ -28,6 +28,7 @@ lazy val common = crossProject(JVMPlatform, JSPlatform)
       "io.circe" %%% "circe-core" % "0.14.1",
       "io.circe" %%% "circe-generic" % "0.14.1",
       "io.circe" %%% "circe-parser" % "0.14.1",
+      "org.scodec" %%% "scodec-bits" % "1.1.27",
     )
   )
 
@@ -41,7 +42,8 @@ lazy val frontend = project
   .settings(
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "1.1.0",
-      "com.github.japgolly.scalajs-react" %%% "core" % "1.7.7"
+      "com.github.japgolly.scalajs-react" %%% "core" % "1.7.7",
+      "com.github.japgolly.scalajs-react" %%% "extra" % "1.7.7",
     ),
 
     scalaJSLinkerConfig ~= {
@@ -63,6 +65,8 @@ lazy val server = project
       "org.http4s" %% "http4s-circe" % "0.22.0",
       "org.http4s" %% "http4s-dsl" % "0.22.0",
       "org.http4s" %% "http4s-scalatags" % "0.22.0",
+      "org.http4s" %% "http4s-jdk-http-client" % "0.4.0",
+      "org.apache.commons" % "commons-imaging" % "1.0-alpha2",
     ),
 
     buildInfoKeys := Seq(
