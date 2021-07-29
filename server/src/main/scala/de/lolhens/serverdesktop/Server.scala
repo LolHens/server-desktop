@@ -47,11 +47,12 @@ object Server extends TaskApp {
     s"assets/${asset.library}/${asset.version}/${asset.asset}"
 
   private val apps: Seq[App] = Seq(
-    App(id = AppId.create(), title = "Google", url = "https://www.google.de/", description = "Google Search Engine"),
-    App(id = AppId.create(), title = "Firefox", url = "https://www.mozilla.org/de/firefox/", description = "Mozilla Firefox Browser"),
-    App(id = AppId.create(), title = "GitHub", url = "https://github.com/", description = "Code Collaboration Platform"),
-    App(id = AppId.create(), title = "Hacker News", url = "https://news.ycombinator.com/", description = "Hacker News"),
-    App(id = AppId.create(), title = "YouTube", url = "https://www.youtube.com/", description = "YouTube"),
+    App(id = AppId.create(), title = "Google", url = "https://www.google.de/", description = "Google Search Engine", webservice = false),
+    App(id = AppId.create(), title = "Firefox", url = "https://www.mozilla.org/de/firefox/", description = "Mozilla Firefox Browser", webservice = false),
+    App(id = AppId.create(), title = "GitHub", url = "https://github.com/", description = "Code Collaboration Platform", webservice = false),
+    App(id = AppId.create(), title = "Hacker News", url = "https://news.ycombinator.com/", description = "Hacker News", webservice = false),
+    App(id = AppId.create(), title = "YouTube", url = "https://www.youtube.com/", description = "YouTube", webservice = false),
+    App(id = AppId.create(), title = "Webservice", url = "https://lolhens.de/", description = "Test Webservice", webservice = true),
   )
   /*(0 until 20).map { i =>
     App(id = AppId(i.toString), title = s"My App $i", "https://myapp.lolhens.de", "My App Description", "https://www.google.de/favicon.ico")
@@ -75,7 +76,7 @@ object Server extends TaskApp {
 
     for {
       html <- client.expect[String](uri).onErrorHandleWith { e =>
-        e.printStackTrace()
+        //e.printStackTrace()
         Task.raiseError(e)
       }
       iconUrl = html match {

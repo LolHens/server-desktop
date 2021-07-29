@@ -24,26 +24,32 @@ object AppComponent {
     s"data:$contentType;base64,${bytes.toBase64}"
 
   class Backend($: BackendScope[Props, State]) {
-    Backend.status($.props.runNow().app.id).completeWith {
-      case Success(status) => $.modState(_.copy(status = Some(status)))
-      case Failure(exception) =>
-        exception.printStackTrace()
-        throw exception
-    }.runNow()
+    def start: Callback = Callback {
+      val props = $.props.runNow()
+      //val state = $.state.runNow()
 
-    Backend.icon($.props.runNow().app.id).completeWith {
-      case Success(iconBytes) => $.modState(_.copy(iconBytes = Some(iconBytes)))
-      case Failure(exception) =>
-        exception.printStackTrace()
-        throw exception
-    }.runNow()
+      Backend.status(props.app.id).completeWith {
+        case Success(status) => $.modState(_.copy(status = Some(status)))
+        case Failure(exception) =>
+          //exception.printStackTrace()
+          throw exception
+      }.runNow()
+
+      //if (state.iconBytes.isEmpty)
+      Backend.icon(props.app.id).completeWith {
+        case Success(iconBytes) => $.modState(_.copy(iconBytes = Some(iconBytes)))
+        case Failure(exception) =>
+          //exception.printStackTrace()
+          throw exception
+      }.runNow()
+    }
 
     def render: VdomElement = {
       val props = $.props.runNow()
       val state = $.state.runNow()
 
       <.div(
-        ^.cls := "card",
+        ^.cls := "card card-select",
         ^.cursor := "pointer",
         ^.boxShadow := "2px 2px 8px rgb(0, 0, 0, 20%)",
         ^.onClick --> Callback {
@@ -68,9 +74,10 @@ object AppComponent {
                 }),
                 ^.borderRadius := "50%",
                 ^.boxShadow := "1.5px 1.5px 4px rgb(0, 0, 0, 40%)",
-                ^.onClick --> Callback {
+                ^.onClick ==> (e => Callback {
+                  e.stopPropagation()
                   println("Status")
-                }
+                })
               )
             ),
             state.iconBytes match {
@@ -94,6 +101,7 @@ object AppComponent {
       .initialState(State.empty)
       .backend(new Backend(_))
       .render(_.backend.render)
+      .componentDidMount(_.backend.start)
       .build
 
 }

@@ -18,8 +18,6 @@ object MainComponent {
     val empty: State = State(Seq.empty, "")
   }
 
-  private val itemsPerRow = 4
-
   class Backend($: BackendScope[Props, State]) {
     Backend.apps().completeWith {
       case Success(apps) => $.modState(_.copy(apps = apps))
@@ -37,10 +35,11 @@ object MainComponent {
           ^.id := "settings",
           ^.position := "relative",
           <.i(
-            ^.cls := "bi bi-gear",
+            ^.cls := "bi bi-gear bi-select",
             ^.position := "absolute",
             ^.right := "0",
             ^.top := "0.8rem",
+            ^.textShadow := "1.5px 1.5px 4px rgb(0, 0, 0, 20%)",
             ^.cursor := "pointer",
             ^.onClick --> Callback {
               println("Settings")
@@ -59,18 +58,9 @@ object MainComponent {
             $.modState(_.copy(filter = value))
           }
         ),
-        <.div(
-          ^.id := "apps",
-          ^.cls := "flex-fill d-flex flex-row flex-wrap",
-          state.apps.filter(_.title.toLowerCase.contains(state.filter.toLowerCase)).map { app =>
-            <.div(
-              ^.key := app.id.string,
-              ^.cls := "p-2",
-              ^.width := s"${100 / itemsPerRow}%",
-              AppComponent.Component(AppComponent.Props(app))
-            )
-          }.toVdomArray
-        )
+        AppTilesComponent.Component(AppTilesComponent.Props(
+          state.apps.filter(_.title.toLowerCase.contains(state.filter.toLowerCase))
+        ))
       )
     }
   }

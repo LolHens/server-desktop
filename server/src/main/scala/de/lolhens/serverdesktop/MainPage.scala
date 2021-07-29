@@ -47,6 +47,10 @@ object MainPage {
         integrity := "sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM",
         crossorigin := "anonymous",
       ),
+      link(
+        rel := "stylesheet",
+        href := "/assets/main.css"
+      ),
       // ES Module Shims: Import maps polyfill for modules browsers without import maps support (all except Chrome 89+)
       script(
         async,

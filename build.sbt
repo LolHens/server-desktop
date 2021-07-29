@@ -44,6 +44,7 @@ lazy val frontend = project
       "org.scala-js" %%% "scalajs-dom" % "1.1.0",
       "com.github.japgolly.scalajs-react" %%% "core" % "1.7.7",
       "com.github.japgolly.scalajs-react" %%% "extra" % "1.7.7",
+      "com.github.japgolly.scalajs-react" %%% "ext-cats" % "1.7.7",
     ),
 
     scalaJSLinkerConfig ~= {

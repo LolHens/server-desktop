@@ -21,6 +21,7 @@ case class App(
                 title: String,
                 url: String,
                 description: String,
+                webservice: Boolean,
               )
 
 object App {

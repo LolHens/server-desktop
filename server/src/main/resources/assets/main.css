@@ -1,0 +1,50 @@
+.flex-fill-0 {
+    flex: 1 1 0 !important;
+}
+
+.bi-select:hover {
+    color: royalblue;
+}
+
+.card-select:hover {
+    background-color: ghostwhite;
+}
+
+.app-tile {
+    width: calc(100% / 1);
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+    .app-tile {
+        width: calc(100% / 1);
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+    .app-tile {
+        width: calc(100% / 2);
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .app-tile {
+        width: calc(100% / 3);
+    }
+}
+
+/* X-Large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .app-tile {
+        width: calc(100% / 3);
+    }
+}
+
+/* XX-Large devices (larger desktops, 1400px and up) */
+@media (min-width: 1400px) {
+    .app-tile {
+        width: calc(100% / 4);
+    }
+}
