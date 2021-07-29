@@ -49,9 +49,7 @@ object AppComponent {
       val state = $.state.runNow()
 
       <.div(
-        ^.cls := "card card-select",
-        ^.cursor := "pointer",
-        ^.boxShadow := "2px 2px 8px rgb(0, 0, 0, 20%)",
+        ^.cls := "card app",
         ^.onClick --> Callback {
           window.location.href = props.app.url
         },
@@ -61,19 +59,18 @@ object AppComponent {
             <.div(
               ^.position := "relative",
               <.div(
-                ^.cls := "status",
+                ^.cls := "status app-status",
                 ^.position := "absolute",
                 ^.right := "0",
                 ^.top := "2px",
                 ^.height := "12px",
                 ^.width := "12px",
+                ^.borderRadius := "50%",
                 ^.backgroundColor := (state.status match {
                   case None => "lightgray"
                   case Some(true) => "limegreen"
                   case Some(false) => "red"
                 }),
-                ^.borderRadius := "50%",
-                ^.boxShadow := "1.5px 1.5px 4px rgb(0, 0, 0, 40%)",
                 ^.onClick ==> (e => Callback {
                   e.stopPropagation()
                   println("Status")

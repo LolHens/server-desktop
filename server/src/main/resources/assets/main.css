@@ -1,13 +1,37 @@
+#settings {
+    text-shadow: 1.5px 1.5px 4px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+#search {
+    max-width: 20em;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#webservices-label {
+    color: lightgray;
+    text-shadow: 0 0 black;
+}
+
+.app {
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.app:hover {
+    background-color: ghostwhite;
+}
+
+.app-status {
+    box-shadow: 1.5px 1.5px 4px rgba(0, 0, 0, 0.4);
+}
+
 .flex-fill-0 {
     flex: 1 1 0 !important;
 }
 
 .bi-select:hover {
     color: royalblue;
-}
-
-.card-select:hover {
-    background-color: ghostwhite;
 }
 
 .app-tile {

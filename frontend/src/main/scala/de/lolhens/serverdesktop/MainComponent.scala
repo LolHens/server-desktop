@@ -39,8 +39,6 @@ object MainComponent {
             ^.position := "absolute",
             ^.right := "0",
             ^.top := "0.8rem",
-            ^.textShadow := "1.5px 1.5px 4px rgb(0, 0, 0, 20%)",
-            ^.cursor := "pointer",
             ^.onClick --> Callback {
               println("Settings")
             }
@@ -49,8 +47,6 @@ object MainComponent {
         <.input(
           ^.id := "search",
           ^.cls := "align-self-center form-control form-control-lg mb-4",
-          ^.maxWidth := "20em",
-          ^.boxShadow := "2px 2px 8px rgb(0, 0, 0, 20%)",
           ^.tpe := "text",
           ^.placeholder := "Search...",
           ^.onChange ==> { e: ReactEventFromInput =>

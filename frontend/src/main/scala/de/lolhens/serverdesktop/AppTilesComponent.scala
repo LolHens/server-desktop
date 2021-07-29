@@ -11,9 +11,9 @@ object AppTilesComponent {
     def render: VdomElement = {
       val props = $.props.runNow()
 
-      def tiles(key: String, apps: Seq[App]): VdomElement = <.div(
-        ^.key := key,
-        ^.id := "apps",
+      def tiles(id: String, apps: Seq[App]): VdomElement = <.div(
+        ^.key := id,
+        ^.id := id,
         ^.cls := "flex-fill d-flex flex-row flex-wrap",
         apps.map { app =>
           <.div(
@@ -32,9 +32,8 @@ object AppTilesComponent {
             else Seq(
               <.h4(
                 ^.key := "webservices-label",
+                ^.id := "webservices-label",
                 ^.cls := "align-self-center mt-4",
-                ^.color := "lightgray",
-                ^.textShadow := "0 0 black",
                 "Webservices"
               ),
               tiles("webservices", webservices)
