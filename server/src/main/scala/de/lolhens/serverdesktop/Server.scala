@@ -1,18 +1,16 @@
 package de.lolhens.serverdesktop
 
-import cats.effect.{Blocker, ExitCode, Resource}
+import cats.effect.{ExitCode, IO, IOApp, Resource}
 import cats.syntax.semigroupk._
 import io.circe.Json
 import io.circe.syntax._
-import monix.eval.{Task, TaskApp}
-import monix.execution.Scheduler
 import org.apache.commons.imaging.ImagingConstants.PARAM_KEY_FILENAME
 import org.apache.commons.imaging.{ImageFormats, Imaging}
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.circe._
 import org.http4s.client.Client
 import org.http4s.client.middleware.FollowRedirect
-import org.http4s.dsl.task._
+import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.jdkhttpclient.JdkHttpClient
 import org.http4s.scalatags._
@@ -24,24 +22,19 @@ import scodec.bits.ByteVector
 
 import java.io.ByteArrayInputStream
 
-object Server extends TaskApp {
-  override def run(args: List[String]): Task[ExitCode] =
-    applicationResource.use(_ => Task.never)
+object Server extends IOApp {
+  override def run(args: List[String]): IO[ExitCode] =
+    applicationResource.use(_ => IO.never)
 
-  private val applicationResource: Resource[Task, Unit] =
+  private val applicationResource: Resource[IO, Unit] =
     for {
-      client <- Resource.eval(JdkHttpClient.simple[Task])
-      _ <- Resource.suspend(Task.deferAction(implicit scheduler => Task {
-        BlazeServerBuilder[Task](scheduler)
-          .bindHttp(8080, "0.0.0.0")
-          .withHttpApp(service(FollowRedirect(99)(client)).orNotFound)
-          .resource
-      }))
+      client <- JdkHttpClient.simple[IO]
+      ec <- Resource.eval(IO.executionContext)
+      _ <- BlazeServerBuilder[IO](ec)
+        .bindHttp(8080, "0.0.0.0")
+        .withHttpApp(service(FollowRedirect(99)(client)).orNotFound)
+        .resource
     } yield ()
-
-
-  lazy val resourceScheduler: Scheduler = Scheduler.io(name = "http4s-resources")
-  lazy val blocker: Blocker = Blocker.liftExecutionContext(resourceScheduler)
 
   def webjarUri(asset: WebjarAsset) =
     s"assets/${asset.library}/${asset.version}/${asset.asset}"
@@ -58,9 +51,9 @@ object Server extends TaskApp {
     App(id = AppId(i.toString), title = s"My App $i", "https://myapp.lolhens.de", "My App Description", "https://www.google.de/favicon.ico")
   }*/
 
-  def extractFaviconPng(client: Client[Task], uri: Uri): Task[ByteVector] = {
-    def extractPng(url: String): Task[ByteVector] = {
-      if (url == "") Task.raiseError(new RuntimeException("Empty URL"))
+  def extractFaviconPng(client: Client[IO], uri: Uri): IO[ByteVector] = {
+    def extractPng(url: String): IO[ByteVector] = {
+      if (url == "") IO.raiseError(new RuntimeException("Empty URL"))
       else for {
         bytes <- client.expect[Array[Byte]](Uri.unsafeFromString(url))
         ext = url.replaceAll(".*(\\.[^.])", "$1")
@@ -75,10 +68,7 @@ object Server extends TaskApp {
     val HrefR = "href=\"(.*?)\"".r.unanchored
 
     for {
-      html <- client.expect[String](uri).onErrorHandleWith { e =>
-        //e.printStackTrace()
-        Task.raiseError(e)
-      }
+      html <- client.expect[String](uri)
       iconUrl = html match {
         case IconR(HrefR(href)) => href
         case _ => ""
@@ -89,16 +79,16 @@ object Server extends TaskApp {
       }
       defaultIconUrl = (uri / "favicon.ico").renderString
       png <- extractPng(iconUrl)
-        .onErrorFallbackTo(extractPng(alternateIconUrl))
-        .onErrorFallbackTo(extractPng(defaultIconUrl))
+        .handleErrorWith(_ => extractPng(alternateIconUrl))
+        .handleErrorWith(_ => extractPng(defaultIconUrl))
     } yield
       png
   }
 
-  def service(client: Client[Task]): HttpRoutes[Task] = Router(
+  def service(client: Client[IO]): HttpRoutes[IO] = Router(
     "/assets" -> {
-      (WebjarServiceBuilder[Task](blocker).toRoutes: HttpRoutes[Task]) <+>
-        ResourceServiceBuilder[Task]("/assets", blocker).toRoutes
+      (WebjarServiceBuilder[IO].toRoutes: HttpRoutes[IO]) <+>
+        ResourceServiceBuilder[IO]("/assets").toRoutes
     },
 
     "/api" -> HttpRoutes.of {
@@ -109,8 +99,8 @@ object Server extends TaskApp {
         for {
           appId <- request.as[Json].map(_.as[AppId].toTry.get)
           app = apps.find(_.id == appId).getOrElse(throw new RuntimeException("app not found!"))
-          result <- client.expect[String](Uri.unsafeFromString(app.url)).materialize
-          response <- Ok(result.isSuccess.asJson)
+          result <- client.expect[String](Uri.unsafeFromString(app.url)).attempt
+          response <- Ok(result.isRight.asJson)
         } yield
           response
 

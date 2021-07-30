@@ -23,12 +23,11 @@ lazy val common = crossProject(JVMPlatform, JSPlatform)
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-core" % "2.6.1",
-      "io.monix" %%% "monix" % "3.4.0",
       "io.circe" %%% "circe-core" % "0.14.1",
       "io.circe" %%% "circe-generic" % "0.14.1",
       "io.circe" %%% "circe-parser" % "0.14.1",
       "org.scodec" %%% "scodec-bits" % "1.1.27",
+      "org.typelevel" %%% "cats-effect" % "3.2.0",
     )
   )
 
@@ -41,10 +40,9 @@ lazy val frontend = project
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
+      "com.github.japgolly.scalajs-react" %%% "core" % "2.0.0-RC2",
+      "com.github.japgolly.scalajs-react" %%% "extra" % "2.0.0-RC2",
       "org.scala-js" %%% "scalajs-dom" % "1.1.0",
-      "com.github.japgolly.scalajs-react" %%% "core" % "1.7.7",
-      "com.github.japgolly.scalajs-react" %%% "extra" % "1.7.7",
-      "com.github.japgolly.scalajs-react" %%% "ext-cats" % "1.7.7",
     ),
 
     scalaJSLinkerConfig ~= {
@@ -60,14 +58,16 @@ lazy val server = project
   .settings(
     name := "server-desktop",
 
+    evictionErrorLevel := Level.Info, // TODO
+
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % "1.2.5",
-      "org.http4s" %% "http4s-blaze-server" % "0.22.0",
-      "org.http4s" %% "http4s-circe" % "0.22.0",
-      "org.http4s" %% "http4s-dsl" % "0.22.0",
-      "org.http4s" %% "http4s-scalatags" % "0.22.0",
-      "org.http4s" %% "http4s-jdk-http-client" % "0.4.0",
-      "de.lolhens" %% "http4s-monix" % "0.0.2",
+      "org.http4s" %% "http4s-blaze-server" % "0.23.0",
+      "org.http4s" %% "http4s-circe" % "0.23.0",
+      "org.http4s" %% "http4s-dsl" % "0.23.0",
+      "org.http4s" %% "http4s-scalatags" % "0.23.0",
+      "org.http4s" %% "http4s-client" % "0.23.0",
+      "org.http4s" %% "http4s-jdk-http-client" % "0.5.0-RC1",
       "org.apache.commons" % "commons-imaging" % "1.0-alpha2",
     ),
 

@@ -1,4 +1,4 @@
-package de.lolhens.serverdesktop
+/*package de.lolhens.serverdesktop
 
 import cats.data.{EitherT, OptionT}
 import cats.syntax.option._
@@ -81,3 +81,4 @@ object Suspense {
     Component(Props(() => fallback, asyncBody.map(ev)))
   }
 }
+*/
