@@ -40,7 +40,7 @@ lazy val frontend = project
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "com.github.japgolly.scalajs-react" %%% "core" % "2.0.0-RC2",
+      "com.github.japgolly.scalajs-react" %%% "core-bundle-cats_effect" % "2.0.0-RC2",
       "com.github.japgolly.scalajs-react" %%% "extra" % "2.0.0-RC2",
       "org.scala-js" %%% "scalajs-dom" % "1.1.0",
     ),

@@ -1,10 +1,13 @@
 package de.lolhens.serverdesktop
 
+import cats.effect.IO
+import japgolly.scalajs.react.ReactCatsEffect._
+import japgolly.scalajs.react.ScalaComponent
+import japgolly.scalajs.react.ScalaComponent.BackendScope
+import japgolly.scalajs.react.internal.CoreGeneral.ReactEventFromInput
+import japgolly.scalajs.react.util.EffectCatsEffect._
 import japgolly.scalajs.react.vdom.VdomElement
 import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.{BackendScope, Callback, ReactEventFromInput, ScalaComponent}
-
-import scala.util.{Failure, Success}
 
 object MainComponent {
   case class Props()
@@ -19,15 +22,17 @@ object MainComponent {
   }
 
   class Backend($: BackendScope[Props, State]) {
-    Backend.apps().completeWith {
-      case Success(apps) => $.modState(_.copy(apps = apps))
-      case Failure(exception) =>
+    Backend.apps().attempt.flatMap {
+      case Right(apps) =>
+        $.modState(_.copy(apps = apps)).to[IO]
+
+      case Left(exception) =>
         exception.printStackTrace()
         throw exception
-    }.runNow()
+    }.unsafeRunAndForget()(runtime)
 
     def render: VdomElement = {
-      val state = $.state.runNow()
+      val state = $.state.unsafeRunSync()
 
       <.div(
         ^.cls := "container my-4 d-flex flex-column",
@@ -39,7 +44,7 @@ object MainComponent {
             ^.position := "absolute",
             ^.right := "0",
             ^.top := "0.8rem",
-            ^.onClick --> Callback {
+            ^.onClick --> IO {
               println("Settings")
             }
           )

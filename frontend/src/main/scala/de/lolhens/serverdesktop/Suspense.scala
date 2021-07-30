@@ -1,24 +1,25 @@
-/*package de.lolhens.serverdesktop
+package de.lolhens.serverdesktop
 
 import cats.data.{EitherT, OptionT}
+import cats.effect.{IO, SyncIO}
 import cats.syntax.option._
-import japgolly.scalajs.react.CatsReact._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.component.Scala.{BackendScope, Unmounted}
+import japgolly.scalajs.react.component.Scala.Unmounted
+import japgolly.scalajs.react.util.EffectCatsEffect._
 import japgolly.scalajs.react.vdom.html_<^.VdomNode
 
 // The builtin react Suspense has some restrictions
 object Suspense {
 
   case class Props(fallback: () => VdomNode,
-                   asyncBody: AsyncCallback[VdomNode])
+                   asyncBody: IO[VdomNode])
 
   case class State(body: VdomNode,
-                   asyncBody: Option[AsyncCallback[VdomNode]])
+                   asyncBody: Option[IO[VdomNode]])
 
   object State {
     def fromProps(props: Props): State = {
-      props.asyncBody.sync.runNow() match {
+      props.asyncBody.syncStep.unsafeRunSync() match {
         case Right(sync) =>
           State(sync, none)
 
@@ -29,14 +30,14 @@ object Suspense {
   }
 
   class Backend($: BackendScope[Props, State]) {
-    def shouldUpdate(nextProps: Props, nextState: State): CallbackTo[Boolean] = {
+    def shouldUpdate(nextProps: Props, nextState: State): SyncIO[Boolean] = {
       (for {
         props <- EitherT.right[Boolean]($.props)
         _ <- {
           (for {
-            _ <- EitherT.cond[CallbackTo](nextProps != props, (), true)
+            _ <- EitherT.cond[SyncIO](nextProps != props, (), true)
             _ <- EitherT.right($.modState(_ => State.fromProps(nextProps)))
-            _ <- EitherT.leftT[CallbackTo, Unit](false)
+            _ <- EitherT.leftT[SyncIO, Unit](false)
           } yield ())
             .recover {
               case true => ()
@@ -48,20 +49,21 @@ object Suspense {
         .merge
     }
 
-    private def waitForAsyncBody: Callback = {
+    private def waitForAsyncBody: IO[Unit] = {
       (for {
-        state <- OptionT.liftF($.state)
-        async <- OptionT.fromOption[CallbackTo](state.asyncBody)
-        _ <- OptionT.liftF(async.flatMapSync { body =>
-          $.modState(_.copy(body = body, asyncBody = none))
-        }.toCallback)
+        state <- OptionT.liftF($.state.to[IO])
+        async <- OptionT.fromOption[IO](state.asyncBody)
+        _ <- OptionT.liftF(async.flatMap { body =>
+          $.modState(_.copy(body = body, asyncBody = none)).to[IO]
+        })
       } yield ())
-        .value.map(_ => ())
+        .value
+        .void
     }
 
-    def start: Callback = waitForAsyncBody
+    def start: IO[Unit] = waitForAsyncBody
 
-    def update: Callback = waitForAsyncBody
+    def update: IO[Unit] = waitForAsyncBody
 
     def render(props: Props, state: State): VdomNode = state.body
   }
@@ -76,9 +78,8 @@ object Suspense {
       .build
 
   def apply[A](fallback: => VdomNode,
-               asyncBody: AsyncCallback[A])
+               asyncBody: IO[A])
               (implicit ev: A => VdomNode): Unmounted[Props, State, Backend] = {
     Component(Props(() => fallback, asyncBody.map(ev)))
   }
 }
-*/

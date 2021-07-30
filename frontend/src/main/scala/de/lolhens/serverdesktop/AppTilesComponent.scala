@@ -9,7 +9,7 @@ object AppTilesComponent {
 
   class Backend($: BackendScope[Props, Unit]) {
     def render: VdomElement = {
-      val props = $.props.runNow()
+      val props = $.props.unsafeRunSync()
 
       def tiles(id: String, apps: Seq[App]): VdomElement = <.div(
         ^.key := id,

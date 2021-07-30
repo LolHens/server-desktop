@@ -1,8 +1,8 @@
 package de.lolhens.serverdesktop
 
+import cats.effect.IO
 import io.circe.syntax._
 import io.circe.{Json, parser}
-import japgolly.scalajs.react.AsyncCallback
 import japgolly.scalajs.react.extra.Ajax
 import scodec.bits.ByteVector
 
@@ -14,7 +14,7 @@ object Backend {
                        method: String,
                        url: String,
                        json: Option[Json]
-                     ): AsyncCallback[ByteVector] =
+                     ): IO[ByteVector] =
     Ajax(method, url)
       .setRequestContentTypeJsonUtf8
       .and(_.responseType = "arraybuffer")
@@ -35,17 +35,17 @@ object Backend {
                            method: String,
                            url: String,
                            json: Option[Json]
-                         ): AsyncCallback[Json] =
+                         ): IO[Json] =
     request(method, url, json).map(bytes =>
       bytes.decodeUtf8.toTry.flatMap(parser.parse(_).toTry).get
     )
 
-  def apps(): AsyncCallback[Seq[App]] =
+  def apps(): IO[Seq[App]] =
     jsonRequest("GET", "/api/apps", None).map(_.as[Seq[App]].toTry.get)
 
-  def status(appId: AppId): AsyncCallback[Boolean] =
+  def status(appId: AppId): IO[Boolean] =
     jsonRequest("POST", "/api/app/status", Some(appId.asJson)).map(_.as[Boolean].toTry.get)
 
-  def icon(appId: AppId): AsyncCallback[ByteVector] =
+  def icon(appId: AppId): IO[ByteVector] =
     request("POST", "/api/app/icon", Some(appId.asJson))
 }

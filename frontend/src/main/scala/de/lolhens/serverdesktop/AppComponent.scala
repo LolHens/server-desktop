@@ -1,12 +1,12 @@
 package de.lolhens.serverdesktop
 
+import cats.effect.{IO, SyncIO}
+import japgolly.scalajs.react.ReactCatsEffect._
 import japgolly.scalajs.react.vdom.VdomElement
 import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.{BackendScope, Callback, ScalaComponent}
+import japgolly.scalajs.react.{BackendScope, ScalaComponent}
 import org.scalajs.dom.window
 import scodec.bits.ByteVector
-
-import scala.util.{Failure, Success}
 
 object AppComponent {
   case class Props(app: App)
@@ -24,33 +24,37 @@ object AppComponent {
     s"data:$contentType;base64,${bytes.toBase64}"
 
   class Backend($: BackendScope[Props, State]) {
-    def start: Callback = Callback {
-      val props = $.props.runNow()
+    def start: SyncIO[Unit] = SyncIO {
+      val props = $.props.unsafeRunSync()
       //val state = $.state.runNow()
 
-      Backend.status(props.app.id).completeWith {
-        case Success(status) => $.modState(_.copy(status = Some(status)))
-        case Failure(exception) =>
+      Backend.status(props.app.id).attempt.flatMap {
+        case Right(status) =>
+          $.modState(_.copy(status = Some(status))).to[IO]
+
+        case Left(exception) =>
           //exception.printStackTrace()
           throw exception
-      }.runNow()
+      }.unsafeRunAndForget()(runtime)
 
       //if (state.iconBytes.isEmpty)
-      Backend.icon(props.app.id).completeWith {
-        case Success(iconBytes) => $.modState(_.copy(iconBytes = Some(iconBytes)))
-        case Failure(exception) =>
+      Backend.icon(props.app.id).attempt.flatMap {
+        case Right(iconBytes) =>
+          $.modState(_.copy(iconBytes = Some(iconBytes))).to[IO]
+
+        case Left(exception) =>
           //exception.printStackTrace()
           throw exception
-      }.runNow()
+      }.unsafeRunAndForget()(runtime)
     }
 
     def render: VdomElement = {
-      val props = $.props.runNow()
-      val state = $.state.runNow()
+      val props = $.props.unsafeRunSync()
+      val state = $.state.unsafeRunSync()
 
       <.div(
         ^.cls := "card app",
-        ^.onClick --> Callback {
+        ^.onClick --> SyncIO {
           window.location.href = props.app.url
         },
         <.div(
@@ -71,7 +75,7 @@ object AppComponent {
                   case Some(true) => "limegreen"
                   case Some(false) => "red"
                 }),
-                ^.onClick ==> (e => Callback {
+                ^.onClick ==> (e => SyncIO {
                   e.stopPropagation()
                   println("Status")
                 })
