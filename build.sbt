@@ -67,6 +67,7 @@ lazy val server = project
       "org.http4s" %% "http4s-dsl" % "0.22.0",
       "org.http4s" %% "http4s-scalatags" % "0.22.0",
       "org.http4s" %% "http4s-jdk-http-client" % "0.4.0",
+      "de.lolhens" %% "http4s-monix" % "0.0.2",
       "org.apache.commons" % "commons-imaging" % "1.0-alpha2",
     ),
 
