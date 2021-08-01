@@ -58,8 +58,6 @@ lazy val server = project
   .settings(
     name := "server-desktop",
 
-    evictionErrorLevel := Level.Info, // TODO
-
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % "1.2.5",
       "org.http4s" %% "http4s-blaze-server" % "0.23.0",
@@ -67,7 +65,7 @@ lazy val server = project
       "org.http4s" %% "http4s-dsl" % "0.23.0",
       "org.http4s" %% "http4s-scalatags" % "0.23.0",
       "org.http4s" %% "http4s-client" % "0.23.0",
-      "org.http4s" %% "http4s-jdk-http-client" % "0.5.0-RC1",
+      "org.http4s" %% "http4s-jdk-http-client" % "0.5.0",
       "org.apache.commons" % "commons-imaging" % "1.0-alpha2",
     ),
 
