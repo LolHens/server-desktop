@@ -1,5 +1,6 @@
 ThisBuild / scalaVersion := "2.13.6"
 ThisBuild / name := (server / name).value
+name := (ThisBuild / name).value
 
 lazy val commonSettings: Seq[Setting[_]] = Seq(
   version := {
