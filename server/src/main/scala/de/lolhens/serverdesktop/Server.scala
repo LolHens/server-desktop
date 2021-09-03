@@ -116,7 +116,7 @@ object Server extends IOApp {
 
     "/" -> HttpRoutes.of {
       case request@GET -> Root =>
-        Ok(MainPage())
+        Ok(MainPage("Server Desktop"))
     }
   )
 }

@@ -19,14 +19,17 @@ lazy val root = project.in(file("."))
   )
   .aggregate(server)
 
+val circeVersion = "0.14.1"
+val http4sVersion = "0.23.3"
+
 lazy val common = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "io.circe" %%% "circe-core" % "0.14.1",
-      "io.circe" %%% "circe-generic" % "0.14.1",
-      "io.circe" %%% "circe-parser" % "0.14.1",
+      "io.circe" %%% "circe-core" % circeVersion,
+      "io.circe" %%% "circe-generic" % circeVersion,
+      "io.circe" %%% "circe-parser" % circeVersion,
       "org.scodec" %%% "scodec-bits" % "1.1.27",
       "org.typelevel" %%% "cats-effect" % "3.2.0",
     )
@@ -61,11 +64,11 @@ lazy val server = project
 
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % "1.2.5",
-      "org.http4s" %% "http4s-blaze-server" % "0.23.0",
-      "org.http4s" %% "http4s-circe" % "0.23.0",
-      "org.http4s" %% "http4s-dsl" % "0.23.0",
-      "org.http4s" %% "http4s-scalatags" % "0.23.0",
-      "org.http4s" %% "http4s-client" % "0.23.0",
+      "org.http4s" %% "http4s-blaze-server" % http4sVersion,
+      "org.http4s" %% "http4s-circe" % http4sVersion,
+      "org.http4s" %% "http4s-dsl" % http4sVersion,
+      "org.http4s" %% "http4s-scalatags" % http4sVersion,
+      "org.http4s" %% "http4s-client" % http4sVersion,
       "org.http4s" %% "http4s-jdk-http-client" % "0.5.0",
       "org.apache.commons" % "commons-imaging" % "1.0-alpha2",
     ),
