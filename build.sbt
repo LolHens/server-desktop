@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "2.13.6"
+ThisBuild / scalaVersion := "2.13.8"
 ThisBuild / name := (server / name).value
 name := (ThisBuild / name).value
 
@@ -20,7 +20,7 @@ lazy val root = project.in(file("."))
   .aggregate(server)
 
 val circeVersion = "0.14.1"
-val http4sVersion = "0.23.3"
+val http4sVersion = "0.23.11"
 
 lazy val common = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
@@ -63,13 +63,13 @@ lazy val server = project
     name := "server-desktop",
 
     libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % "1.2.5",
+      "ch.qos.logback" % "logback-classic" % "1.2.11",
       "org.http4s" %% "http4s-blaze-server" % http4sVersion,
       "org.http4s" %% "http4s-circe" % http4sVersion,
       "org.http4s" %% "http4s-dsl" % http4sVersion,
       "org.http4s" %% "http4s-scalatags" % http4sVersion,
       "org.http4s" %% "http4s-client" % http4sVersion,
-      "org.http4s" %% "http4s-jdk-http-client" % "0.5.0",
+      "org.http4s" %% "http4s-jdk-http-client" % "0.7.0",
       "org.apache.commons" % "commons-imaging" % "1.0-alpha2",
     ),
 
