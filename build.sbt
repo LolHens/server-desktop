@@ -63,7 +63,7 @@ lazy val server = project
     name := "server-desktop",
 
     libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % "1.2.11",
+      "ch.qos.logback" % "logback-classic" % "1.4.0",
       "org.http4s" %% "http4s-blaze-server" % http4sVersion,
       "org.http4s" %% "http4s-circe" % http4sVersion,
       "org.http4s" %% "http4s-dsl" % http4sVersion,
